@@ -105,3 +105,4 @@ downloads/
 config/
 build/
 dist/
+docs/changelog.md
