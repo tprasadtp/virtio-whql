@@ -15,8 +15,9 @@ RUN --mount=type=cache,target=/download/cache \
     virtio-win-"${VIRTIO_WIN_VERSION}" \
     && cd /download/extract \
     && rpm2cpio "/download/cache/virtio-win-${VIRTIO_WIN_VERSION}.noarch.rpm" | cpio -idmv \
+    && echo "$VIRTIO_WIN_VERSION" > /build/VERSION.txt \
     && cp /download/extract/usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso
 
 # Copy from build/extract statge
 FROM scratch AS export-stage
-COPY --from=virtio-base-image /build/virtio-win.iso /
+COPY --from=virtio-base-image /build/ /

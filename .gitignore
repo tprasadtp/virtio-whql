@@ -98,7 +98,6 @@ release-notes.md
 *.deb
 *.rpm
 *.apk
-*.iso
 
 ### Project Specific ###
 downloads/
@@ -106,3 +105,4 @@ config/
 build/
 dist/
 docs/changelog.md
+*.iso

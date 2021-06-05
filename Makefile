@@ -1,5 +1,4 @@
 SHELL := /bin/bash
-DOCKER_BUILDKIT  := 1
 export REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
 # GitHub
@@ -16,11 +15,6 @@ PROJECT_LICENSE  := GPLv3
 # Include makefiles
 include $(REPO_ROOT)/makefiles/help.mk
 
-# Enforce BUILDKIT
-ifneq ($(DOCKER_BUILDKIT),1)
-$(error ✖ DOCKER_BUILDKIT!=1. Docker Buildkit cannot be disabled on this repo!)
-endif
-
 .PHONY: shellcheck
 shellcheck: ## Runs shellcheck
 	@bash $(REPO_ROOT)/scripts/shellcheck.sh $(shell find $(REPO_ROOT)/root/etc/ -type f -executable)
@@ -28,7 +22,7 @@ shellcheck: ## Runs shellcheck
 .PHONY: build
 build: clean ## Build ISO
 	@mkdir -p $(REPO_ROOT)/docker/build
-	docker build  \
+	DOCKER_BUILDKIT=1 docker build  \
 		--tag ghcr.io/tprasadtp/virtio-whql \
 		--output type=local,dest=$(REPO_ROOT)/docker/build \
 		--file $(REPO_ROOT)/docker/Dockerfile \

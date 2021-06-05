@@ -2,18 +2,13 @@ name: build
 on:
   push:
     branches:
-      - "*"
-    tags:
-      - "*"
+      - "**"
   pull_request:
 jobs:
-  # ISO
   extract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Set up Docker Buildx
         id: buildx
@@ -22,22 +17,24 @@ jobs:
       - name: Build
         run: make build
 
-      - name: Install git-chglog
-        run: |
-          brew tap git-chglog/git-chglog
-          brew install git-chglog
-
-      - name: Generate Changelog
-        run: |
-          make changelog
-          cat docs/changelog.md
-
       - name: Upload ISO
         uses: actions/upload-artifact@v2
         with:
           name: virtio-win.iso
           path: docker/build/virtio-win.iso
           retention-days: 7
+
+      - name: Upload VERSION.txt
+        uses: actions/upload-artifact@v2
+        with:
+          name: VERSION.txt
+          path: docker/build/VERSION.txt
+          retention-days: 7
+
+      - name: Files
+        run: |
+          ls -alh docker/build/
+          cat docker/build/VERSION.txt
 
   verify:
     runs-on: windows-latest
@@ -47,6 +44,8 @@ jobs:
     needs:
       - extract
     steps:
+      - uses: actions/checkout@v2
+
       - name: Download ISO
         uses: actions/download-artifact@v2
         with:
@@ -55,15 +54,59 @@ jobs:
       - name: Mount ISO
         run: |
           Write-Host "Mounting ISO Image"
-          Mount-DiskImage -StorageType ISO -ImagePath virtio-win.iso
-          Get-DiskImage virtio-win.iso | Get-Volume
 
-      - name: Verify Ballon Driver
-        run:
-          Signtool verify /pa /v /c D:\Balloon\w10\amd64\balloon.cat D:\Balloon\w10\amd64\balloon.sys
-        continue-on-error: true
+          Mount-DiskImage -StorageType ISO -ImagePath ${env:GITHUB_WORKSPACE}\virtio-win.iso
+          Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume
 
-      - name: Verify VIOSCSI Driver
-        run:
-          Signtool verify /pa /v /c D:\vioscsi\w10\amd64\vioscsi.cat D:\Balloon\w10\amd64\vioscsi.sys
-        continue-on-error: true
+      - name: Get Mountpoint
+        run: |
+          Write-Host "Export Drive Letter"
+          $IsoMountDriveLetter = (Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume).DriveLetter
+          echo "ISO_MOUNTPOINT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Verify ballon driver
+        run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\Balloon\w10\amd64\balloon.cat ${env:ISO_MOUNTPOINT}:\Balloon\w10\amd64\balloon.sys
+
+      - name: Verify vioscsi driver
+        run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.cat ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.sys
+
+  # Release if current latest tag differes from downloaded one
+  # Do only if on master branch
+  release:
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+    permissions:
+      contents: write
+    needs:
+      - extract
+      - verify
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Download ISO
+        uses: actions/download-artifact@v2
+        with:
+          path: docker/build/
+          name: virtio-win.iso
+
+      - name: Download VERSION.txt
+        uses: actions/download-artifact@v2
+        with:
+          path: docker/build/
+          name: VERSION.txt
+
+      - name: Install git-chglog
+        run: |
+          brew tap git-chglog/git-chglog
+          brew install git-chglog
+
+      - name: Release if necessary
+        run: |
+          ls -alh docker/build
+          ls -alh docker/build/VERSION.txt
+          ls -alh docker/build/virtio-win.iso
+          ./tools/release.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
