@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Actions
+  - package-ecosystem: github-actions
+    labels:
+      - "Actor:Dependabot"
+      - "Deps:Actions"
+    commit-message:
+      prefix: "ci(deps):"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    pull-request-branch-name:
+      separator: "-"
