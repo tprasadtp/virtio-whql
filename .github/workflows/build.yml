@@ -1,5 +1,6 @@
 name: build
 on:
+  workflow_dispatch:
   push:
     branches:
       - "**"
@@ -9,10 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
 
       - name: Build
         run: make build
@@ -36,6 +33,7 @@ jobs:
           ls -alh docker/build/
           cat docker/build/VERSION.txt
 
+  # Verify using bundled signtool
   verify:
     runs-on: windows-latest
     defaults:
@@ -70,8 +68,9 @@ jobs:
       - name: Verify vioscsi driver
         run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.cat ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.sys
 
-  # Release if current latest tag differes from downloaded one
-  # Do only if on master branch
+  # Release if
+  # 1. Latest tag on GitHub differes from extracted version
+  # 2. If on master branch
   release:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'

@@ -15,10 +15,6 @@ PROJECT_LICENSE  := GPLv3
 # Include makefiles
 include $(REPO_ROOT)/makefiles/help.mk
 
-.PHONY: shellcheck
-shellcheck: ## Runs shellcheck
-	@bash $(REPO_ROOT)/scripts/shellcheck.sh $(shell find $(REPO_ROOT)/root/etc/ -type f -executable)
-
 .PHONY: build
 build: clean ## Build ISO
 	@mkdir -p $(REPO_ROOT)/docker/build

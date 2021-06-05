@@ -3,8 +3,8 @@ baseurl: "/virtio-whql"
 url: "https://tprasadtp.github.io"
 
 # meta
-title: VirtIO WHQL Drivers from CentOS
-description: WHQL Drivers for virtio devices from CentOS 8 project, Signed by Microsoft/
+title: VirtIO WHQL Drivers for Windows 10
+description: WHQL Drivers for virtio devices extracted from CentOS 8 project, Signed by Microsoft.
 show_downloads: false
 remote_theme: pmarsceill/just-the-docs
 # Logo

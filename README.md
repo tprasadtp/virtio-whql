@@ -4,5 +4,5 @@
 [![releases](https://img.shields.io/github/v/tag/tprasadtp/virtio-whql?label=release&sort=semver&logo=semver&color=7f50a6&labelColor=3a3a3a)](https://github.com/tprasadtp/virtio-whql/releases/latest)
 ![analytics](https://ga-beacon.prasadt.com/UA-101760811-3/github/virtio-whql)
 
-- `virtio` drivers for Windows.
-- These are signed by Microsoft and are sourced from CentOS stream repository
+- `virtio` drivers for Windows 10.
+- Drivers are signed by Microsoft and are sourced from CentOS 8 stream repositories.
