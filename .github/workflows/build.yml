@@ -52,7 +52,6 @@ jobs:
       - name: Mount ISO
         run: |
           Write-Host "Mounting ISO Image"
-
           Mount-DiskImage -StorageType ISO -ImagePath ${env:GITHUB_WORKSPACE}\virtio-win.iso
           Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume
 
@@ -69,7 +68,7 @@ jobs:
         run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.cat ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.sys
 
   # Release if
-  # 1. Latest tag on GitHub differes from extracted version
+  # 1. Latest tag on GitHub differs from extracted version
   # 2. If on master branch
   release:
     runs-on: ubuntu-latest
@@ -96,6 +95,20 @@ jobs:
           path: docker/build/
           name: VERSION.txt
 
+      - name: Mount and Extract
+        run: |
+          echo "Mount ISO"
+          sudo mkdir /mnt/virtio-iso
+          sudo chown $USER:$USER /mnt/virtio-iso
+          sudo chmod 755 /mnt/virtio-iso
+          echo "Mounting ISO"
+          sudo mount -o loop docker/build/virtio-win.iso /mnt/virtio-iso
+          echo "Copy Installers"
+          cp /mnt/virtio-iso/virtio-win-guest-tools.exe docker/build/virtio-win-guest-tools.exe
+          cp /mnt/virtio-iso/virtio-win-gt-x64.msi docker/build/virtio-win-gt-x64.msi
+
+
+
       - name: Install git-chglog
         run: |
           brew tap git-chglog/git-chglog
@@ -104,8 +117,6 @@ jobs:
       - name: Release if necessary
         run: |
           ls -alh docker/build
-          ls -alh docker/build/VERSION.txt
-          ls -alh docker/build/virtio-win.iso
           ./tools/release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

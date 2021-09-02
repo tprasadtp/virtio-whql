@@ -39,5 +39,7 @@ else
         --notes-file docs/changelog.md \
         --title "$CURRENT_VERSION" \
         "$CURRENT_VERSION" \
-        docker/build/virtio-win.iso
+        docker/build/virtio-win.iso \
+        docker/build/virtio-win-gt-x64.msi \
+        docker/build/virtio-win-guest-tools.exe
 fi
