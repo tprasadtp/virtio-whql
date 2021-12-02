@@ -41,7 +41,7 @@ else
 
     echo "Create: GH-Release"
     gh release create \
-        --notes-file docs/changelog.md \
+        --notes-file CHANGELOG.md \
         --title "$CURRENT_VERSION" \
         "$CURRENT_VERSION" \
         docker/build/virtio-win.iso \
