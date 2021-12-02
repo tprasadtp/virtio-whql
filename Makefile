@@ -1,19 +1,11 @@
 SHELL := /bin/bash
 export REPO_ROOT := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-# GitHub
-GITHUB_OWNER := tprasadtp
-GITHUB_REPO  := virtio-whql
-
-# OCI Metadata
-PROJECT_TITLE    := VirtIO WHQL
-PROJECT_DESC     := VirtIO WHQL Drivers
-PROJECT_URL      := https://tprasadtp.github.io/virtio-whql
-PROJECT_SOURCE   := https://github.com/tprasadtp/virtio-whql
-PROJECT_LICENSE  := GPLv3
-
-# Include makefiles
-include $(REPO_ROOT)/makefiles/help.mk
+.PHONY: help
+help: ## This help message
+	@printf "%-20s %s\n" "Target" "Help"
+	@printf "%-20s %s\n" "-----" "-----"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
 .PHONY: build
 build: clean ## Build ISO
@@ -27,7 +19,8 @@ build: clean ## Build ISO
 .PHONY: clean
 clean: ## clean
 	rm -f $(REPO_ROOT)/docker/build/*.iso
+	rm -f $(REPO_ROOT)/docker/build/VERSION.txt
 
 .PHONY: changelog
 changelog: ## Generate changelog
-	git-chglog --repository-url=$(PROJECT_SOURCE) --output $(REPO_ROOT)/docs/changelog.md
+	git-chglog --repository-url=https://github.com/tprasadtp/virtio-whql --output $(REPO_ROOT)/CHANGELOG.md
