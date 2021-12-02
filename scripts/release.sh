@@ -31,9 +31,6 @@ else
     echo "Create: Tag"
     git tag "$CURRENT_VERSION"
 
-    echo "Create: Changelog"
-    make changelog
-
     echo "Create: Checksums"
     sha256sum docker/build/virtio-win.iso | cut -f1 -d ' ' > docker/build/virtio-win.iso.sha256
     sha256sum docker/build/virtio-win-gt-x64.msi | cut -f1 -d ' ' > docker/build/virtio-win-gt-x64.msi.sha256
@@ -41,7 +38,6 @@ else
 
     echo "Create: GH-Release"
     gh release create \
-        --notes-file CHANGELOG.md \
         --title "$CURRENT_VERSION" \
         "$CURRENT_VERSION" \
         docker/build/virtio-win.iso \

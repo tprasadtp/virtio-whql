@@ -77,8 +77,6 @@ jobs:
       - verify
     steps:
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
 
       - name: Download ISO
         uses: actions/download-artifact@v2
@@ -103,11 +101,6 @@ jobs:
           echo "Copy Installers"
           cp /mnt/virtio-iso/virtio-win-guest-tools.exe docker/build/virtio-win-guest-tools.exe
           cp /mnt/virtio-iso/virtio-win-gt-x64.msi docker/build/virtio-win-gt-x64.msi
-
-      - name: Install git-chglog
-        run: |
-          brew tap git-chglog/git-chglog
-          brew install git-chglog
 
       - name: Release if necessary
         run: |

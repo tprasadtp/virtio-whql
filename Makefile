@@ -20,7 +20,3 @@ build: clean ## Build ISO
 clean: ## clean
 	rm -f $(REPO_ROOT)/docker/build/*.iso
 	rm -f $(REPO_ROOT)/docker/build/VERSION.txt
-
-.PHONY: changelog
-changelog: ## Generate changelog
-	git-chglog --repository-url=https://github.com/tprasadtp/virtio-whql --output $(REPO_ROOT)/CHANGELOG.md
