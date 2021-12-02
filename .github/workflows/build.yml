@@ -61,11 +61,8 @@ jobs:
           $IsoMountDriveLetter = (Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume).DriveLetter
           echo "ISO_MOUNTPOINT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Verify ballon driver
-        run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\Balloon\w10\amd64\balloon.cat ${env:ISO_MOUNTPOINT}:\Balloon\w10\amd64\balloon.sys
-
-      - name: Verify vioscsi driver
-        run: tools\signtool.exe verify /pa /v /c ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.cat ${env:ISO_MOUNTPOINT}:\vioscsi\w10\amd64\vioscsi.sys
+      - name: Verify Signatures
+        run: .\scripts\verify.ps1 -List scripts\virtio.list -BasePath ${env:ISO_MOUNTPOINT}:\
 
   # Release if
   # 1. Latest tag on GitHub differs from extracted version
@@ -107,8 +104,6 @@ jobs:
           cp /mnt/virtio-iso/virtio-win-guest-tools.exe docker/build/virtio-win-guest-tools.exe
           cp /mnt/virtio-iso/virtio-win-gt-x64.msi docker/build/virtio-win-gt-x64.msi
 
-
-
       - name: Install git-chglog
         run: |
           brew tap git-chglog/git-chglog
@@ -117,6 +112,6 @@ jobs:
       - name: Release if necessary
         run: |
           ls -alh docker/build
-          ./tools/release.sh
+          ./scripts/release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
