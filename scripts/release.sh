@@ -34,12 +34,20 @@ else
     echo "Create: Changelog"
     make changelog
 
+    echo "Create: Checksums"
+    sha256sum docker/build/virtio-win.iso | cut -f1 -d ' ' > docker/build/virtio-win.iso.sha256
+    sha256sum docker/build/virtio-win-gt-x64.msi | cut -f1 -d ' ' > docker/build/virtio-win-gt-x64.msi.sha256
+    sha256sum docker/build/virtio-win-guest-tools.exe | cut -f1 -d ' ' > docker/build/virtio-win-guest-tools.exe.sha256
+
     echo "Create: GH-Release"
     gh release create \
         --notes-file docs/changelog.md \
         --title "$CURRENT_VERSION" \
         "$CURRENT_VERSION" \
         docker/build/virtio-win.iso \
+        docker/build/virtio-win.iso.sha256 \
         docker/build/virtio-win-gt-x64.msi \
-        docker/build/virtio-win-guest-tools.exe
+        docker/build/virtio-win-gt-x64.msi.sha256 \
+        docker/build/virtio-win-guest-tools.exe \
+        docker/build/virtio-win-guest-tools.exe.sha256
 fi
