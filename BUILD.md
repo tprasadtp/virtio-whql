@@ -7,7 +7,7 @@ Build will extract and save ISO file to `docker/build/virtio-win.iso`
 make build
 ```
 
-## Notes
+## Verification
 
 - Generating `scripts/virtio.list` (Requires Windows)
 

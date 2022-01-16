@@ -33,7 +33,6 @@ jobs:
           ls -alh docker/build/
           cat docker/build/VERSION.txt
 
-  # Verify using bundled signtool
   verify:
     runs-on: windows-latest
     defaults:
