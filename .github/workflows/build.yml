@@ -9,7 +9,7 @@ jobs:
   extract:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build
         run: make build
@@ -41,7 +41,7 @@ jobs:
     needs:
       - extract
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Download ISO
         uses: actions/download-artifact@v2
@@ -75,7 +75,7 @@ jobs:
       - extract
       - verify
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Download ISO
         uses: actions/download-artifact@v2
