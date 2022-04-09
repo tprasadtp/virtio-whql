@@ -15,14 +15,14 @@ jobs:
         run: make build
 
       - name: Upload ISO
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: virtio-win.iso
           path: docker/build/virtio-win.iso
           retention-days: 7
 
       - name: Upload VERSION.txt
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: VERSION.txt
           path: docker/build/VERSION.txt
