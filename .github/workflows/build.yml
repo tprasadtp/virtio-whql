@@ -44,7 +44,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Download ISO
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: virtio-win.iso
 
@@ -78,13 +78,13 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Download ISO
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: docker/build/
           name: virtio-win.iso
 
       - name: Download VERSION.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           path: docker/build/
           name: VERSION.txt
