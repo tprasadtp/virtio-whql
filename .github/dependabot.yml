@@ -3,8 +3,10 @@ updates:
   # Actions
   - package-ecosystem: github-actions
     labels:
-      - "Actor:Dependabot"
-      - "Deps:Actions"
+      - "dependabot"
+      - "dependencies"
+      - "github-action"
+      - "luna/autoupdate"
     commit-message:
       prefix: "ci(deps):"
     directory: "/"

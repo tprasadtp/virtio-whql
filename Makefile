@@ -11,7 +11,7 @@ help: ## This help message
 build: clean ## Build ISO
 	@mkdir -p $(REPO_ROOT)/docker/build
 	DOCKER_BUILDKIT=1 docker build  \
-		--tag ghcr.io/tprasadtp/virtio-whql \
+		--tag ghcr.io/tprasadtp/dev-virtio-whql \
 		--output type=local,dest=$(REPO_ROOT)/docker/build \
 		--file $(REPO_ROOT)/docker/Dockerfile \
 		$(REPO_ROOT)/docker

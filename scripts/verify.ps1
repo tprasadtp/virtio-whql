@@ -1,8 +1,6 @@
 param (
     [Alias('h')]
     [switch]$Help = $False,
-    [Alias('l')]
-    [string]$List,
     [Alias('b')]
     [string]$BasePath
 )
@@ -10,7 +8,7 @@ param (
 
 # Process Help
 if ($Help -eq $true) {
-    "Verify List of files are Authenticode signed"
+    "Verify Drivers/Executables are Authenticode signed"
     ""
     "RQEUIRMENTS:"
     "  - Windows 10 20H2 or higher"
@@ -22,7 +20,6 @@ if ($Help -eq $true) {
     ""
     "OPTIONS:"
     "  -b, -basepath [PATH]  Base Path"
-    "  -l, -list [PATH]      Path to list file"
     "  -h, -help             Show this help message"
     ""
     exit
@@ -124,45 +121,41 @@ function Log-Error {
 }
 
 
-# check if file exists
-if (!(Test-Path -ErrorAction SilentlyContinue $List)) {
-    Log-Error "File not found - $List"
+if ([string]::IsNullorEmpty($BasePath)) {
+    Log-Error "Base path not specified!"
     exit 1
-} else {
-    Log-Info "List Path is set to - $List"
 }
 
-
 if (!(Test-Path -ErrorAction SilentlyContinue -PathType Container $BasePath)) {
-    Log-Error "Base Path is not specified!"
+    Log-Error "Base Path is invalid!"
     exit 1
 } else {
     Log-Info "Base Path is set to - $BasePath"
 }
+
+# List of files to verify
+Log-Info "Collecting files to verify"
+$FilesToVerify = Get-ChildItem -Recurse -File $BasePath | Where {!$_.PSIsContainer} | Select-Object -ExpandProperty FullName | Where {$_.EndsWith(".cat") -or $_.EndsWith(".exe") -or $_.EndsWith(".msi") -or $_.EndsWith("sys") -or $_.EndsWith(".dll")} | Where {!$_.EndsWith("qemu-ga-x86_64.msi") -and !$_.EndsWith("qemu-ga-i386.msi") }
 
 $errCount = 0
 
 try {
     Log-Info "Verifying Signatures"
     $index=0
-    foreach($line in Get-Content $List) {
+    foreach($file in $FilesToVerify) {
         $index++
-        if (![string]::IsNullOrWhiteSpace($line)) {
-            $FileFullPath = Join-Path -Path $BasePath -ChildPath $line
-            Log-Info "Checking - $FileFullPath"
-            if(Test-Path -ErrorAction SilentlyContinue $FileFullPath){
-                if ((Get-AuthenticodeSignature -FilePath $FileFullPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status) -eq "Valid") {
-                    Log-Success "Authenticode Signature - VALID"
-                } else {
-                    Log-Error "Authenticode Signature - INVALID!"
-                    $errCount++
-                }
+        $FileFullPath = Resolve-Path  -Path $file
+        Log-Info "Checking - $FileFullPath"
+        if(Test-Path -ErrorAction SilentlyContinue $FileFullPath){
+            if ((Get-AuthenticodeSignature -FilePath $FileFullPath -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Status) -eq "Valid") {
+                Log-Success "Authenticode Signature - VALID"
             } else {
-                Log-Error "File not found - $FileFullPath"
+                Log-Error "Authenticode Signature - INVALID!"
                 $errCount++
             }
         } else {
-            Log-Warning "Ignoring empty item at line $index"
+            Log-Error "File not found - $FileFullPath"
+            $errCount++
         }
     }
 } catch {

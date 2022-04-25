@@ -6,7 +6,7 @@ on:
       - "**"
   pull_request:
 jobs:
-  extract:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -61,7 +61,7 @@ jobs:
           echo "ISO_MOUNTPOINT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Verify Signatures
-        run: .\scripts\verify.ps1 -List scripts\virtio.list -BasePath ${env:ISO_MOUNTPOINT}:\
+        run: .\scripts\verify.ps1 -BasePath ${env:ISO_MOUNTPOINT}:\
 
   # Release if
   # 1. Latest tag on GitHub differs from extracted version
@@ -91,7 +91,7 @@ jobs:
 
       - name: Mount and Extract
         run: |
-          echo "Mount ISO"
+          echo "Prepare ISO"
           sudo mkdir /mnt/virtio-iso
           sudo chown $USER:$USER /mnt/virtio-iso
           sudo chmod 755 /mnt/virtio-iso
