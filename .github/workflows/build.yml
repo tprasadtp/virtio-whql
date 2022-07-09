@@ -5,6 +5,9 @@ on:
     branches:
       - "**"
   pull_request:
+  schedule:
+    # Every Saturday at 18:15
+    - cron: "18 15 * * 6"
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,13 +15,31 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Build
-        run: make build
+        run: ./scripts/ci-build-docker.sh
 
-      - name: Upload ISO
+      - name: Mount and Extract
+        run: |
+          echo "--> Prepare ISO"
+          sudo mkdir /mnt/virtio-iso
+          sudo chown $USER:$USER /mnt/virtio-iso
+          sudo chmod 755 /mnt/virtio-iso
+          echo "--> Mounting ISO"
+          sudo mount -o loop docker/build/virtio-win.iso /mnt/virtio-iso
+          echo "--> Copy Files"
+          ./scripts/ci-copy-files.sh /mnt/virtio-iso
+
+      - name: Upload virtio-win.iso
         uses: actions/upload-artifact@v3
         with:
           name: virtio-win.iso
           path: docker/build/virtio-win.iso
+          retention-days: 7
+
+      - name: Upload virtio-WinPE.iso
+        uses: actions/upload-artifact@v3
+        with:
+          name: virtio-WinPE.iso
+          path: docker/build/virtio-WinPE.iso
           retention-days: 7
 
       - name: Upload VERSION.txt
@@ -30,7 +51,7 @@ jobs:
 
       - name: Files
         run: |
-          ls -alh docker/build/
+          tree -p docker/build/
           cat docker/build/VERSION.txt
 
   verify:
@@ -43,25 +64,45 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Download ISO
+      - name: Download VIRTIO ISO
         uses: actions/download-artifact@v3
         with:
           name: virtio-win.iso
 
-      - name: Mount ISO
+      - name: Download WINPE ISO
+        uses: actions/download-artifact@v3
+        with:
+          name: virtio-WinPE.iso
+
+      - name: Mount VIRTIO ISO
         run: |
-          Write-Host "Mounting ISO Image"
+          Write-Host "Mounting VIRTIO Image"
           Mount-DiskImage -StorageType ISO -ImagePath ${env:GITHUB_WORKSPACE}\virtio-win.iso
           Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume
 
-      - name: Get Mountpoint
+      - name: Get VIRTIO Mountpoint
         run: |
           Write-Host "Export Drive Letter"
           $IsoMountDriveLetter = (Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-win.iso | Get-Volume).DriveLetter
-          echo "ISO_MOUNTPOINT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "VIRTIO_ISO_MNT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Verify Signatures
-        run: .\scripts\verify.ps1 -BasePath ${env:ISO_MOUNTPOINT}:\
+      - name: Verify VIRTIO Signatures
+        run: .\scripts\verify.ps1 -BasePath ${env:VIRTIO_ISO_MNT}:\
+
+      - name: Mount WinPE ISO
+        run: |
+          Write-Host "Mounting VIRTIO Image"
+          Mount-DiskImage -StorageType ISO -ImagePath ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso
+          Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso | Get-Volume
+
+      - name: Get WinPE Mountpoint
+        run: |
+          Write-Host "Export Drive Letter"
+          $IsoMountDriveLetter = (Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso | Get-Volume).DriveLetter
+          echo "WINPE_ISO_MNT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Verify WinPE Signatures
+        run: .\scripts\verify.ps1 -BasePath ${env:WINPE_ISO_MNT}:\
 
   # Release if
   # 1. Latest tag on GitHub differs from extracted version
@@ -83,27 +124,21 @@ jobs:
           path: docker/build/
           name: virtio-win.iso
 
+      - name: Download WINPE ISO
+        uses: actions/download-artifact@v3
+        with:
+          path: docker/build/
+          name: virtio-WinPE.iso
+
       - name: Download VERSION.txt
         uses: actions/download-artifact@v3
         with:
           path: docker/build/
           name: VERSION.txt
 
-      - name: Mount and Extract
-        run: |
-          echo "Prepare ISO"
-          sudo mkdir /mnt/virtio-iso
-          sudo chown $USER:$USER /mnt/virtio-iso
-          sudo chmod 755 /mnt/virtio-iso
-          echo "Mounting ISO"
-          sudo mount -o loop docker/build/virtio-win.iso /mnt/virtio-iso
-          echo "Copy Installers"
-          cp /mnt/virtio-iso/virtio-win-guest-tools.exe docker/build/virtio-win-guest-tools.exe
-          cp /mnt/virtio-iso/virtio-win-gt-x64.msi docker/build/virtio-win-gt-x64.msi
-
       - name: Release if necessary
         run: |
           ls -alh docker/build
-          ./scripts/release.sh
+          ./scripts/ci-release.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

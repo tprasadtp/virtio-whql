@@ -1,4 +1,4 @@
-FROM rockylinux/rockylinux:8.5 AS downloader
+FROM rockylinux/rockylinux:8.6 AS downloader
 
 # Install virtio-win package
 RUN --mount=type=cache,target=/var/cache/dnf \
@@ -16,5 +16,5 @@ RUN --mount=type=cache,target=/var/cache/dnf \
 
 # Copy from build/extract statge
 FROM scratch AS export-stage
-COPY --from=downloader /usr/share/virtio-win/virtio-win.iso /virtio-win.iso
-COPY --from=downloader /usr/share/virtio-win/VERSION.txt /VERSION.txt
+COPY --from=downloader /usr/share/virtio-win/virtio-win.iso virtio-win.iso
+COPY --from=downloader /usr/share/virtio-win/VERSION.txt VERSION.txt
