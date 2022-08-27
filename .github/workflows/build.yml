@@ -19,6 +19,10 @@ jobs:
 
       - name: Mount and Extract
         run: |
+          sudo apt-get install -y genisoimage
+
+      - name: Mount and Extract
+        run: |
           echo "--> Prepare ISO"
           sudo mkdir /mnt/virtio-iso
           sudo chown $USER:$USER /mnt/virtio-iso
