@@ -7,11 +7,6 @@ if [[ ! -f docker/build/VERSION.txt ]]; then
     exit 1
 fi
 
-echo "--> Create Checksums"
-sha256sum docker/build/virtio-win.iso | cut -f1 -d ' ' >docker/build/virtio-win.iso.sha256
-sha256sum docker/build/virtio-WinPE.iso | cut -f1 -d ' ' >docker/build/virtio-WinPE.iso.sha256
-sha256sum docker/build/virtio-win-guest-tools.exe | cut -f1 -d ' ' >docker/build/virtio-win-guest-tools.exe.sha256
-
 CURRENT_VERSION=$(cat docker/build/VERSION.txt | tr -dc '[:print:]')
 
 if [[ -z $CURRENT_VERSION ]]; then
@@ -42,8 +37,8 @@ else
         "$CURRENT_VERSION" \
         docker/build/virtio-win.iso \
         docker/build/virtio-win.iso.sha256 \
-        docker/build/virtio-WinPE.iso \
-        docker/build/virtio-WinPE.iso.sha256 \
+        docker/build/virtio-winpe.iso \
+        docker/build/virtio-winpe.iso.sha256 \
         docker/build/virtio-win-guest-tools.exe \
         docker/build/virtio-win-guest-tools.exe.sha256
 fi

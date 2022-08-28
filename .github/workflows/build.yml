@@ -39,11 +39,39 @@ jobs:
           path: docker/build/virtio-win.iso
           retention-days: 7
 
-      - name: Upload virtio-WinPE.iso
+      - name: Upload virtio-win.iso checksum
         uses: actions/upload-artifact@v3
         with:
-          name: virtio-WinPE.iso
-          path: docker/build/virtio-WinPE.iso
+          name: virtio-win.iso.sha256
+          path: docker/build/virtio-win.iso.sha256
+          retention-days: 7
+
+      - name: Upload virtio-win-guest-tools.exe
+        uses: actions/upload-artifact@v3
+        with:
+          name: virtio-win-guest-tools.exe
+          path: docker/build/virtio-win-guest-tools.exe
+          retention-days: 7
+
+      - name: Upload virtio-win-guest-tools.exe checksum
+        uses: actions/upload-artifact@v3
+        with:
+          name: virtio-win-guest-tools.exe.sha256
+          path: docker/build/virtio-win-guest-tools.exe.sha256
+          retention-days: 7
+
+      - name: Upload virtio-winpe.iso
+        uses: actions/upload-artifact@v3
+        with:
+          name: virtio-winpe.iso
+          path: docker/build/virtio-winpe.iso
+          retention-days: 7
+
+      - name: Upload virtio-winpe.iso checksum
+        uses: actions/upload-artifact@v3
+        with:
+          name: virtio-winpe.iso.sha256
+          path: docker/build/virtio-winpe.iso.sha256
           retention-days: 7
 
       - name: Upload VERSION.txt
@@ -73,11 +101,6 @@ jobs:
         with:
           name: virtio-win.iso
 
-      - name: Download WINPE ISO
-        uses: actions/download-artifact@v3
-        with:
-          name: virtio-WinPE.iso
-
       - name: Mount VIRTIO ISO
         run: |
           Write-Host "Mounting VIRTIO Image"
@@ -93,20 +116,6 @@ jobs:
       - name: Verify VIRTIO Signatures
         run: .\scripts\verify.ps1 -BasePath ${env:VIRTIO_ISO_MNT}:\
 
-      - name: Mount WinPE ISO
-        run: |
-          Write-Host "Mounting VIRTIO Image"
-          Mount-DiskImage -StorageType ISO -ImagePath ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso
-          Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso | Get-Volume
-
-      - name: Get WinPE Mountpoint
-        run: |
-          Write-Host "Export Drive Letter"
-          $IsoMountDriveLetter = (Get-DiskImage ${env:GITHUB_WORKSPACE}\virtio-WinPE.iso | Get-Volume).DriveLetter
-          echo "WINPE_ISO_MNT=$IsoMountDriveLetter" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      - name: Verify WinPE Signatures
-        run: .\scripts\verify.ps1 -BasePath ${env:WINPE_ISO_MNT}:\
 
   # Release if
   # 1. Latest tag on GitHub differs from extracted version
@@ -128,11 +137,35 @@ jobs:
           path: docker/build/
           name: virtio-win.iso
 
-      - name: Download WINPE ISO
+      - name: Download ISO checksum
         uses: actions/download-artifact@v3
         with:
           path: docker/build/
-          name: virtio-WinPE.iso
+          name: virtio-win.iso.sha256
+
+      - name: Download winpe ISO
+        uses: actions/download-artifact@v3
+        with:
+          path: docker/build/
+          name: virtio-winpe.iso
+
+      - name: Download winpe ISO checksum
+        uses: actions/download-artifact@v3
+        with:
+          path: docker/build/
+          name: virtio-winpe.iso.sha256
+
+      - name: Download virtio-win-guest-tools.exe
+        uses: actions/download-artifact@v3
+        with:
+          path: docker/build/
+          name: virtio-win-guest-tools.exe
+
+      - name: Download virtio-win-guest-tools.exe checksum
+        uses: actions/download-artifact@v3
+        with:
+          path: docker/build/
+          name: virtio-win-guest-tools.exe.sha256
 
       - name: Download VERSION.txt
         uses: actions/download-artifact@v3
