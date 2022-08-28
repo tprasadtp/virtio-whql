@@ -28,9 +28,6 @@ else
     echo "Current Version: $CURRENT_VERSION"
     echo "Latest Release: $LATEST_RELEASE"
 
-    echo "-->  Create Tag"
-    git tag "$CURRENT_VERSION"
-
     echo "--> Create GH-Release"
     gh release create \
         --title "$CURRENT_VERSION" \
