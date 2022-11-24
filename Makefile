@@ -17,7 +17,7 @@ help: ## Show this message
 .PHONY: build
 build: ## Build and Extract
 	@echo "-> Building VirtIO ISO via Docker"
-	docker \
+	DOCKER_BUILDKIT=1 docker \
 		build \
         --tag ghcr.io/tprasadtp/dev-virtio-whql \
         --output type=local,dest=docker/build \
