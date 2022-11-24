@@ -30,6 +30,7 @@ else
 
     echo "--> Create GH-Release"
     gh release create \
+        --latest \
         --title "$CURRENT_VERSION" \
         "$CURRENT_VERSION" \
         docker/build/virtio-win.iso \

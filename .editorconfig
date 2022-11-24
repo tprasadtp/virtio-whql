@@ -1,6 +1,5 @@
 root = true
 
-# Default
 [*]
 charset = utf-8
 end_of_line = lf
@@ -15,25 +14,19 @@ trim_trailing_whitespace = true
 indent_style = tab
 indent_size = 4
 
-# YAML
 [{*.yml,*.yaml}]
 indent_size = 2
 
-# Go
-# https://golang.org/cmd/gofmt/
-[{go.mod,go.sum,*.go}]
-indent_style = tab
-indent_size = 4
+[*.json]
+indent_size = 2
 
 [Dockerfile]
 indent_size = 4
 
-# PowerShell
 [*.ps1]
 end_of_line = crlf
 indent_size = 4
 
-# Batch
 [*.cmd]
 end_of_line = crlf
 indent_size = 4

@@ -1,6 +1,7 @@
 #!/bin/bash
-
 set -eo pipefail
+
+echo "--> Copy Files"
 
 declare ISO_ROOT="$1"
 

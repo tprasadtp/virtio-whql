@@ -1,11 +1,11 @@
-# VirtIO Windows - WHQL Drivers
+# VirtIO Drivers for Windows
 
 [![build](https://github.com/tprasadtp/virtio-whql/actions/workflows/build.yml/badge.svg)](https://github.com/tprasadtp/virtio-whql/actions/workflows/build.yml)
 [![upstream-pkg](https://img.shields.io/badge/upstream-virtio--win-10B981?logo=rockylinux)](https://git.rockylinux.org/staging/rpms/virtio-win)
 [![upstream-pkg](https://img.shields.io/badge/changelog-virtio--win-10B981?logo=rockylinux)](https://git.rockylinux.org/staging/rpms/virtio-win/-/blob/r8/SPECS/virtio-win.spec#L280)
 [![releases](https://img.shields.io/github/v/tag/tprasadtp/virtio-whql?label=release&sort=semver&logo=semver&color=7f50a6&labelColor=3a3a3a)](https://github.com/tprasadtp/virtio-whql/releases/latest)
 
-[WHQL][] `virtio` drivers for Windows, extracted from [RockyLinux][] repositories.
+VirtIO drivers for Windows, extracted from [RockyLinux][] repositories.
 
 ## Release Assets
 
@@ -18,28 +18,18 @@
 
 ## Signature verification (Requires Windows)
 
-- Mount ISO (Must be run from elevated PowerShell)
-    ```powershell
-    Mount-DiskImage -StorageType ISO -ImagePath virtio-win.iso
-    ```
-- Get Drive letter of mounted ISO
-    ```powershell
-    $DriveLetter = (Get-DiskImage virtio-win.iso | Get-Volume).DriveLetter
-    ```
-- Verifying signatures of all the drivers and executables.
-    ```powershell
-    .\scripts\verify.ps1 -BasePath $DriveLetter:\
-    ```
+Verification script is provided as runs as part of CI workflow.
+
+```powershell
+.\scripts\verify.ps1 -Path <PATH_TO_ISO_FILE>
+```
 
 ## Automatic Updates
 
 Repository should automatically update latest release available from RockyLinux repositories.
 
-[WHQL]: https://docs.microsoft.com/en-us/windows-hardware/drivers/install/whql-release-signature
 [RockyLinux]: https://rockylinux.org
-
 [installer]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win-guest-tools.exe
-[installer-hash]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win-guest-tools.exe
-
+[installer-hash]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win-guest-tools.exe.sha256
 [virtio-win-iso]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win.iso
 [virtio-win-iso-hash]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win.iso.sha256

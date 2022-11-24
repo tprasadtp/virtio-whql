@@ -1,4 +1,7 @@
-FROM rockylinux/rockylinux:8.6 AS downloader
+# syntax=docker/dockerfile:1.2
+ARG DISTRO="rockylinux"
+ARG TAG="8"
+FROM ${DISTRO}:${TAG} AS downloader
 
 # Install virtio-win package
 RUN --mount=type=cache,target=/var/cache/dnf \
