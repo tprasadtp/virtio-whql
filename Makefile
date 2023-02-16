@@ -30,7 +30,7 @@ verify: ## Verify ISO (Requires Windows)
 
 .PHONY: release
 release: ## Release
-	@echo "-> Verifying ISO"
+	@echo "-> Release ISO, PE Drivers ISO and VirtIO Installer"
 	bash scripts/release.sh
 
 .PHONY: clean

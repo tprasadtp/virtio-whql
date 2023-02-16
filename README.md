@@ -14,11 +14,9 @@ VirtIO drivers for Windows, extracted from [RockyLinux][] repositories.
 | [virtio-win-guest-tools.exe][installer], [SHA256][installer-hash] | VirtIO driver and agent installer. This is the only thing you might actually need most of the times.
 | [virtio-win.iso][virtio-win-iso], [SHA256][virtio-win-iso-hash] | VirtIO drivers ISO from upstream virtio-win package.
 
-> Checksums for assets can be obtained by appending suffix (`.sha256`) to the filename.
-
 ## Signature verification (Requires Windows)
 
-Verification script is provided as runs as part of CI workflow.
+Verification script is provided and runs as part of CI workflow.
 
 ```powershell
 .\scripts\verify.ps1 -Path <PATH_TO_ISO_FILE>
