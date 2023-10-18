@@ -1,3 +1,5 @@
 build/
+scripts/
 *.iso
 *.txt
+.env

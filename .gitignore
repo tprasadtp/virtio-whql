@@ -99,8 +99,31 @@ release-notes.md
 *.rpm
 *.apk
 
+# Key files
+*.pem
+*.key
+*.pfx
+*.pkcs12
+
+# Pulumi stacks
+internal/testinfra/*.yaml
+!internal/testinfra/Pulumi.yaml
+
+# Environment variable files
+env
+env.*
+!env.go
+
+.env
+.env.*
+!.env.sample
+
+.envrc
+.envrc.sample
+
 ### Project Specific ###
 downloads/
+secrets/
 config/
 build/
 dist/

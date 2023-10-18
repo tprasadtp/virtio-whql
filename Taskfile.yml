@@ -1,0 +1,44 @@
+# SPDX-FileCopyrightText: Copyright 2023 Prasad Tengse
+# SPDX-License-Identifier: MIT
+
+version: "3"
+
+dotenv: ['.env']
+
+tasks:
+  default:
+    desc: "Show a list of available tasks"
+    cmds:
+      - cmd: task --list
+        silent: true
+
+  rhel-creds:
+    desc: "Initialize RHEL subscription"
+    aliases:
+      - "rhel-credentials"
+    cmds:
+      - cmd: |
+          docker run -it --rm \
+            --env SMDEV_CONTAINER_OFF=true \
+            --env REDHAT_USERNAME \
+            --env REDHAT_PASSWORD \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
+            registry.access.redhat.com/ubi9/ubi:latest
+        # bash -c 'subscription-manager register --username="${REDHAT_USERNAME}" --password "${REDHAT_PASSWORD}" --auto-attach'
+    requires:
+      vars:
+        - REDHAT_PASSWORD
+        - REDHAT_USERNAME
+
+  extract-pkgs:
+    desc: "Download virtio-win from RHEL"
+    cmds:
+      - cmd: |
+          docker build \
+            --tag dev-virtio-whql \
+            --file={{.TASKFILE_DIR}}/Dockerfile \
+            --output type=local,dest={{.TASKFILE_DIR}}/build \
+            {{.TASKFILE_DIR}}
+    env:
+      DOCKER_BUILDKIT: "1"

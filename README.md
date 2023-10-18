@@ -1,18 +1,22 @@
 # VirtIO Drivers for Windows
 
 [![build](https://github.com/tprasadtp/virtio-whql/actions/workflows/build.yml/badge.svg)](https://github.com/tprasadtp/virtio-whql/actions/workflows/build.yml)
-[![upstream-pkg](https://img.shields.io/badge/upstream-virtio--win-10B981?logo=rockylinux)](https://git.rockylinux.org/staging/rpms/virtio-win)
-[![upstream-pkg](https://img.shields.io/badge/changelog-virtio--win-10B981?logo=rockylinux)](https://git.rockylinux.org/staging/rpms/virtio-win/-/blob/r8/SPECS/virtio-win.spec#L280)
 [![releases](https://img.shields.io/github/v/tag/tprasadtp/virtio-whql?label=release&sort=semver&logo=semver&color=7f50a6&labelColor=3a3a3a)](https://github.com/tprasadtp/virtio-whql/releases/latest)
 
-VirtIO drivers for Windows, extracted from [RockyLinux][] repositories.
+VirtIO drivers for Windows, extracted from RHEL repositories.
 
 ## Release Assets
 
-| Asset Name | Description
-| --- | ---
-| [virtio-win-guest-tools.exe][installer], [SHA256][installer-hash] | VirtIO driver and agent installer. This is the only thing you might actually need most of the times.
-| [virtio-win.iso][virtio-win-iso], [SHA256][virtio-win-iso-hash] | VirtIO drivers ISO from upstream virtio-win package.
+> **Warning**
+>
+> WHQL assets are **NOT** available for downloads unless you have access to
+> internal `virtio-whql` repository or networks. RockyLinux 9 no longer
+> includes WHQL drivers.
+
+| Asset Name | URL(Internal) | Description
+| --- | --- | ---
+| `virtio-win-guest-tools.exe` | http://go/virtio-installer | VirtIO driver and agent installer.
+| `virtio-win.iso` | http://go/virtio-winpe-iso | VirtIO Win PE ISO with drivers for unattended install.
 
 ## Signature verification (Requires Windows)
 
@@ -24,10 +28,4 @@ Verification script is provided and runs as part of CI workflow.
 
 ## Automatic Updates
 
-Repository should automatically update latest release available from RockyLinux repositories.
-
-[RockyLinux]: https://rockylinux.org
-[installer]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win-guest-tools.exe
-[installer-hash]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win-guest-tools.exe.sha256
-[virtio-win-iso]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win.iso
-[virtio-win-iso-hash]: https://github.com/tprasadtp/virtio-whql/releases/latest/download/virtio-win.iso.sha256
+Repository should automatically update latest release available from RHEL repositories.

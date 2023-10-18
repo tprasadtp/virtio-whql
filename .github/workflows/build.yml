@@ -15,7 +15,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install
         run: |
@@ -98,7 +98,7 @@ jobs:
     needs:
       - build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download VIRTIO ISO
         uses: actions/download-artifact@v3
@@ -120,7 +120,7 @@ jobs:
       - build
       - verify
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Download ISO
         uses: actions/download-artifact@v3
