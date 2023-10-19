@@ -9,6 +9,9 @@ max_line_length = 80
 insert_final_newline = true
 trim_trailing_whitespace = true
 
+[*.key]
+insert_final_newline = false
+
 # Makefiles and Make Templates
 [{Makefile,GNUMakefile,*.mk}]
 indent_style = tab

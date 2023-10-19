@@ -8,21 +8,36 @@ on:
     branches:
       - main
       - master
-  schedule:
-    # Every Saturday at 18:15
-    - cron: "18 15 * * 6"
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install
-        run: |
-          sudo apt-get install -y genisoimage
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          cache: true
+          go-version: stable
 
-      - name: Build
-        run: make build
+      - name: Install Task
+        run: go install github.com/go-task/task/v3/cmd/task@latest
+
+      - name: Install
+        run: sudo apt-get install -y genisoimage
+
+      - name: Register Subscriptions
+        run: task register-subscription
+        env:
+          REDHAT_ORG: ${{ secrets.REDHAT_ORG }}
+          REDHAT_ACTIVATION_KEY: ${{ secrets.REDHAT_ACTIVATION_KEY }}
+
+      - name: Build and Extract ISO
+        run: task extract
+
+      - name: Unregister Subscriptions
+        run: task register-subscription
+        if: always()
 
       - name: Mount ISO
         run: |
@@ -31,7 +46,7 @@ jobs:
           sudo chown $USER:$USER /mnt/virtio-iso
           sudo chmod 755 /mnt/virtio-iso
           echo "--> Mounting ISO"
-          sudo mount -o loop docker/build/virtio-win.iso /mnt/virtio-iso
+          sudo mount -o loop build/virtio-win.iso /mnt/virtio-iso
 
       - name: Copy files and generate Win-PE ISOs
         run: ./scripts/ci-copy-files.sh /mnt/virtio-iso
@@ -40,14 +55,14 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: virtio-win.iso
-          path: docker/build/virtio-win.iso
+          path: build/virtio-win.iso
           retention-days: 7
 
       - name: Upload virtio-win.iso checksum
         uses: actions/upload-artifact@v3
         with:
           name: virtio-win.iso.sha256
-          path: docker/build/virtio-win.iso.sha256
+          path: build/virtio-win.iso.sha256
           retention-days: 7
 
       - name: Upload virtio-win-guest-tools.exe

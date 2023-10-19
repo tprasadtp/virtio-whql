@@ -9,14 +9,15 @@ VirtIO drivers for Windows, extracted from RHEL repositories.
 
 > **Warning**
 >
-> WHQL assets are **NOT** available for downloads unless you have access to
-> internal `virtio-whql` repository or networks. RockyLinux 9 no longer
-> includes WHQL drivers.
+> WHQL assets are **NOT** available for **PUBLIC** downloads unless
+> you have access tokens. Access tokens can be specified via `token`
+> query parameter or `X-VirtIO-Token` header.
 
-| Asset Name | URL(Internal) | Description
+| Asset Name | URL (Requires Token) | Description
 | --- | --- | ---
-| `virtio-win-guest-tools.exe` | http://go/virtio-installer | VirtIO driver and agent installer.
-| `virtio-win.iso` | http://go/virtio-winpe-iso | VirtIO Win PE ISO with drivers for unattended install.
+| `virtio-win-guest-tools.exe` | https://virtio.prasadt.com/installer | VirtIO driver and agent installer.
+| `virtio-winpe.iso` | https://virtio.prasadt.com/winpe-iso | VirtIO Win PE ISO with drivers for unattended install.
+| `virtio-win.iso` | https://virtio.prasadt.com/iso | VirtIO ISO with all drivers
 
 ## Signature verification (Requires Windows)
 

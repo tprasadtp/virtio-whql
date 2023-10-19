@@ -16,15 +16,15 @@ if ! mountpoint -q "${ISO_ROOT}"; then
 fi
 
 echo "-> Creating Directories"
-mkdir -p docker/build
+mkdir -p build
 
-WINPE_BASE="docker/build/winpe"
-WINPE_DRIVER_BASE="docker/build/winpe/\$WinPEDriver\$"
-mkdir -p docker/build/winpe
+WINPE_BASE="build/winpe"
+WINPE_DRIVER_BASE="build/winpe/\$WinPEDriver\$"
+mkdir -p build/winpe
 
 echo "-> Copying Installer"
 cp --force "${ISO_ROOT}"/virtio-win-guest-tools.exe \
-    docker/build/virtio-win-guest-tools.exe
+    build/virtio-win-guest-tools.exe
 
 cp --force "${ISO_ROOT}"/virtio-win-guest-tools.exe \
     "${WINPE_BASE}"/virtio-win-guest-tools.exe
@@ -72,14 +72,14 @@ echo "-> Building WinPE ISO"
 mkisofs -J -l -R -V \
     "VirtIO-WinPE" \
     -iso-level 4 \
-    -o docker/build/virtio-winpe.iso \
-    docker/build/winpe
+    -o build/virtio-winpe.iso \
+    build/winpe
 
 echo "--> Create Checksum (virtio-win.iso)"
-sha256sum docker/build/virtio-win.iso | cut -f1 -d ' ' >docker/build/virtio-win.iso.sha256
+sha256sum build/virtio-win.iso | cut -f1 -d ' ' >build/virtio-win.iso.sha256
 
 echo "--> Create Checksum (virtio-winpe.iso)"
-sha256sum docker/build/virtio-winpe.iso | cut -f1 -d ' ' >docker/build/virtio-winpe.iso.sha256
+sha256sum build/virtio-winpe.iso | cut -f1 -d ' ' >build/virtio-winpe.iso.sha256
 
 echo "--> Create Checksum (virtio-win-guest-tools.exe)"
-sha256sum docker/build/virtio-win-guest-tools.exe | cut -f1 -d ' ' >docker/build/virtio-win-guest-tools.exe.sha256
+sha256sum build/virtio-win-guest-tools.exe | cut -f1 -d ' ' >build/virtio-win-guest-tools.exe.sha256

@@ -3,7 +3,12 @@
 
 version: "3"
 
-dotenv: ['.env']
+dotenv:
+  - ".env"
+  - "{{.TASKFILE_DIR}}/.env"
+
+vars:
+  DOCKER_IMAGE: registry.access.redhat.com/ubi9/ubi
 
 tasks:
   default:
@@ -12,33 +17,78 @@ tasks:
       - cmd: task --list
         silent: true
 
-  rhel-creds:
-    desc: "Initialize RHEL subscription"
-    aliases:
-      - "rhel-credentials"
+  register-subscription:
+    desc: "Register RHEL subscription"
+    cmds:
+      - for:
+          - "build"
+          - "secrets"
+          - "secrets/consumer"
+          - "secrets/entitlement"
+        cmd: mkdir -p {{ .ITEM }}
+      - cmd: |
+          docker run -it --rm \
+            --env SMDEV_CONTAINER_OFF=true \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
+            {{.DOCKER_IMAGE}}:latest \
+            bash -c 'rm -f /etc/rhsm-host && subscription-manager register --org {{.REDHAT_ORG}} --activationkey {{.REDHAT_ACTIVATION_KEY}}'
+    status:
+      - test -f secrets/consumer/cert.pem
+      - test -f secrets/consumer/key.pem
+    requires:
+      vars:
+        - REDHAT_ORG
+        - REDHAT_ACTIVATION_KEY
+
+  unregister-subscription:
+    desc: "Unregister RHEL subscription"
     cmds:
       - cmd: |
           docker run -it --rm \
             --env SMDEV_CONTAINER_OFF=true \
-            --env REDHAT_USERNAME \
-            --env REDHAT_PASSWORD \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
-            registry.access.redhat.com/ubi9/ubi:latest
-        # bash -c 'subscription-manager register --username="${REDHAT_USERNAME}" --password "${REDHAT_PASSWORD}" --auto-attach'
-    requires:
-      vars:
-        - REDHAT_PASSWORD
-        - REDHAT_USERNAME
+            {{.DOCKER_IMAGE}}:latest \
+            bash -c 'rm -f /etc/rhsm-host && subscription-manager unregister'
 
-  extract-pkgs:
-    desc: "Download virtio-win from RHEL"
+  extract:
+    desc: "Download and extract virtio-win from RHEL"
+    aliases:
+      - "extract-iso"
+    preconditions:
+      - test -f secrets/consumer/cert.pem
+      - test -f secrets/consumer/key.pem
     cmds:
+      - for:
+          - "build"
+          - "build/cache"
+        cmd: mkdir  -p {{ .ITEM }}
       - cmd: |
-          docker build \
-            --tag dev-virtio-whql \
-            --file={{.TASKFILE_DIR}}/Dockerfile \
-            --output type=local,dest={{.TASKFILE_DIR}}/build \
-            {{.TASKFILE_DIR}}
-    env:
-      DOCKER_BUILDKIT: "1"
+          docker run -it --rm \
+            --env SMDEV_CONTAINER_OFF=true \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/cache,dst=/var/cache/dnf" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build,dst=/build" \
+            {{.DOCKER_IMAGE}}:latest \
+            bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
+
+  clean-creds:
+    desc: "Cleanup RedHat Manager credentials"
+    aliases:
+      - "clean-credentials"
+    cmds:
+      - cmd: rm -f secrets/consumer/*.pem
+      - cmd: rm -f secrets/entitlement/*.pem
+
+  clean:
+    desc: "Cleanup build artifacts and cache"
+    cmds:
+      - for:
+          - "*.iso"
+          - "*.exe"
+          - "VERSION"
+          - "VERSION.txt"
+        cmd: rm -f {{.TASKFILE_DIR}}/build/{{.ITEM}}
+      - cmd: rm -rf {{.TASKFILE_DIR}}/build/cache

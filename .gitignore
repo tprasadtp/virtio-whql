@@ -123,9 +123,6 @@ env.*
 
 ### Project Specific ###
 downloads/
-secrets/
-config/
 build/
-dist/
 docs/changelog.md
 *.iso
