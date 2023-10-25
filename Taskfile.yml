@@ -45,7 +45,7 @@ tasks:
     desc: "Unregister RHEL subscription"
     cmds:
       - cmd: |
-          docker run -it --rm \
+          docker run --rm \
             --env SMDEV_CONTAINER_OFF=true \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
@@ -65,7 +65,7 @@ tasks:
           - "build/cache"
         cmd: mkdir  -p {{ .ITEM }}
       - cmd: |
-          docker run -it --rm \
+          docker run --rm \
             --env SMDEV_CONTAINER_OFF=true \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
