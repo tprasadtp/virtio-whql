@@ -38,6 +38,9 @@ jobs:
       - name: Unregister Subscriptions
         run: task register-subscription
         if: always()
+        env:
+          REDHAT_ORG: ${{ secrets.REDHAT_ORG }}
+          REDHAT_ACTIVATION_KEY: ${{ secrets.REDHAT_ACTIVATION_KEY }}
 
       - name: Mount ISO
         run: |
