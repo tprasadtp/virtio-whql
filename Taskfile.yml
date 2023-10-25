@@ -72,7 +72,7 @@ tasks:
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/cache,dst=/var/cache/dnf" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build,dst=/build" \
             {{.DOCKER_IMAGE}}:latest \
-            bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
+            bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
   clean-creds:
     desc: "Cleanup RedHat Manager credentials"
