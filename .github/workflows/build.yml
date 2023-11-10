@@ -61,11 +61,6 @@ jobs:
           path: docker/build/VERSION.txt
           retention-days: 7
 
-      - name: Files
-        run: |
-          tree -p docker/build/
-          cat docker/build/VERSION.txt
-
   verify:
     runs-on: windows-latest
     defaults:
