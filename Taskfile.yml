@@ -8,7 +8,8 @@ dotenv:
   - "{{.TASKFILE_DIR}}/.env"
 
 vars:
-  DOCKER_IMAGE: registry.access.redhat.com/ubi9/ubi
+  DOCKER_IMAGE_RHEL: registry.access.redhat.com/ubi9/ubi:latest
+  DOCKER_IMAGE_CENTOS: quay.io/centos/centos:stream9
 
 tasks:
   default:
@@ -21,21 +22,20 @@ tasks:
     desc: "Register RHEL subscription"
     cmds:
       - for:
-          - "build"
-          - "secrets"
-          - "secrets/consumer"
-          - "secrets/entitlement"
+          - "build/rhel/secrets/consumer"
+          - "build/rhel/secrets/entitlement"
+          - "build/rhel/cache"
         cmd: mkdir -p {{ .ITEM }}
       - cmd: |
           docker run -it --rm \
             --env SMDEV_CONTAINER_OFF=true \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
-            {{.DOCKER_IMAGE}}:latest \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
+            {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'rm -f /etc/rhsm-host && subscription-manager register --org {{.REDHAT_ORG}} --activationkey {{.REDHAT_ACTIVATION_KEY}}'
     status:
-      - test -f secrets/consumer/cert.pem
-      - test -f secrets/consumer/key.pem
+      - test -f build/rhel/secrets/consumer/cert.pem
+      - test -f build/rhel/secrets/consumer/key.pem
     requires:
       vars:
         - REDHAT_ORG
@@ -47,31 +47,51 @@ tasks:
       - cmd: |
           docker run --rm \
             --env SMDEV_CONTAINER_OFF=true \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
-            {{.DOCKER_IMAGE}}:latest \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
+            {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'rm -f /etc/rhsm-host && subscription-manager unregister'
 
-  extract:
+  build-rhel:
     desc: "Download and extract virtio-win from RHEL"
-    aliases:
-      - "extract-iso"
     preconditions:
-      - test -f secrets/consumer/cert.pem
-      - test -f secrets/consumer/key.pem
+      - test -f build/rhel/secrets/consumer/cert.pem
+      - test -f build/rhel/secrets/consumer/key.pem
     cmds:
-      - for:
-          - "build"
-          - "build/cache"
-        cmd: mkdir  -p {{ .ITEM }}
+      - cmd: mkdir -p build/rhel/cache
       - cmd: |
           docker run --rm \
             --env SMDEV_CONTAINER_OFF=true \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/entitlement,dst=/etc/pki/entitlement" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/secrets/consumer,dst=/etc/pki/consumer" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/build/cache,dst=/var/cache/dnf" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/build,dst=/build" \
-            {{.DOCKER_IMAGE}}:latest \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/entitlement,dst=/etc/pki/entitlement" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/cache,dst=/var/cache/dnf" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel,dst=/build" \
+            {{.DOCKER_IMAGE_RHEL}} \
+            bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
+
+  build-centos:
+    desc: "Download and extract virtio-win from Centos Stream"
+    cmds:
+      - task: extract-iso-oss-internal
+        vars:
+          UPSTREAM: "centos"
+          UPSTREAM_IMAGE: "{{.DOCKER_IMAGE_CENTOS}}"
+
+  extract-iso-oss-internal:
+    desc: "Download and extract virtio-win Upstream(OSS)"
+    internal: true
+    requires:
+      vars:
+        - UPSTREAM
+        - UPSTREAM_IMAGE
+    cmds:
+      - cmd: mkdir -p "build/{{.UPSTREAM}}/cache"
+      - cmd: |
+          docker run --rm \
+            --env SMDEV_CONTAINER_OFF=true \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}}/cache,dst=/var/cache/dnf" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}},dst=/build" \
+            {{.UPSTREAM_IMAGE}} \
             bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
   clean-creds:
