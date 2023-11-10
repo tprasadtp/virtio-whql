@@ -45,58 +45,11 @@ jobs:
       - name: Copy ISO
         run: cp --force build/rhel/virtio-win.iso build/virtio-win.iso
 
-      - name: Mount ISO
-        run: |
-          echo "--> Prepare ISO"
-          sudo mkdir /mnt/virtio-iso
-          sudo chown $USER:$USER /mnt/virtio-iso
-          sudo chmod 755 /mnt/virtio-iso
-          echo "--> Mounting ISO"
-          sudo mount -o loop build/virtio-win.iso /mnt/virtio-iso
-
-      - name: Copy files and generate Win-PE ISOs
-        run: ./scripts/ci-copy-files.sh /mnt/virtio-iso
-
       - name: Upload virtio-win.iso
         uses: actions/upload-artifact@v3
         with:
           name: virtio-win.iso
           path: build/virtio-win.iso
-          retention-days: 7
-
-      - name: Upload virtio-win.iso checksum
-        uses: actions/upload-artifact@v3
-        with:
-          name: virtio-win.iso.sha256
-          path: build/virtio-win.iso.sha256
-          retention-days: 7
-
-      - name: Upload virtio-win-guest-tools.exe
-        uses: actions/upload-artifact@v3
-        with:
-          name: virtio-win-guest-tools.exe
-          path: docker/build/virtio-win-guest-tools.exe
-          retention-days: 7
-
-      - name: Upload virtio-win-guest-tools.exe checksum
-        uses: actions/upload-artifact@v3
-        with:
-          name: virtio-win-guest-tools.exe.sha256
-          path: docker/build/virtio-win-guest-tools.exe.sha256
-          retention-days: 7
-
-      - name: Upload virtio-winpe.iso
-        uses: actions/upload-artifact@v3
-        with:
-          name: virtio-winpe.iso
-          path: docker/build/virtio-winpe.iso
-          retention-days: 7
-
-      - name: Upload virtio-winpe.iso checksum
-        uses: actions/upload-artifact@v3
-        with:
-          name: virtio-winpe.iso.sha256
-          path: docker/build/virtio-winpe.iso.sha256
           retention-days: 7
 
       - name: Upload VERSION.txt
@@ -146,44 +99,26 @@ jobs:
       - name: Download ISO
         uses: actions/download-artifact@v3
         with:
-          path: docker/build/
+          path: build/
           name: virtio-win.iso
-
-      - name: Download ISO checksum
-        uses: actions/download-artifact@v3
-        with:
-          path: docker/build/
-          name: virtio-win.iso.sha256
-
-      - name: Download winpe ISO
-        uses: actions/download-artifact@v3
-        with:
-          path: docker/build/
-          name: virtio-winpe.iso
-
-      - name: Download winpe ISO checksum
-        uses: actions/download-artifact@v3
-        with:
-          path: docker/build/
-          name: virtio-winpe.iso.sha256
-
-      - name: Download virtio-win-guest-tools.exe
-        uses: actions/download-artifact@v3
-        with:
-          path: docker/build/
-          name: virtio-win-guest-tools.exe
-
-      - name: Download virtio-win-guest-tools.exe checksum
-        uses: actions/download-artifact@v3
-        with:
-          path: docker/build/
-          name: virtio-win-guest-tools.exe.sha256
 
       - name: Download VERSION.txt
         uses: actions/download-artifact@v3
         with:
-          path: docker/build/
+          path: build/
           name: VERSION.txt
+
+      - name: Mount ISO
+        run: |
+          echo "--> Prepare ISO"
+          sudo mkdir /mnt/virtio-iso
+          sudo chown $USER:$USER /mnt/virtio-iso
+          sudo chmod 755 /mnt/virtio-iso
+          echo "--> Mounting ISO"
+          sudo mount -o loop build/virtio-win.iso /mnt/virtio-iso
+
+      - name: Copy files and generate Win-PE ISOs
+        run: ./scripts/ci-copy-files.sh /mnt/virtio-iso
 
       - name: Release if necessary
         run: |

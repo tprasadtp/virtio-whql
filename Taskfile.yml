@@ -9,6 +9,7 @@ dotenv:
 
 vars:
   DOCKER_IMAGE_RHEL: registry.access.redhat.com/ubi9/ubi:latest
+  DOCKER_IMAGE_FEDORA: quay.io/fedora/fedora:latest
 
 tasks:
   default:
@@ -48,6 +49,7 @@ tasks:
             --env SMDEV_CONTAINER_OFF=true \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/entitlement,dst=/etc/pki/entitlement" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
+            --init \
             {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'rm -f /etc/rhsm-host && subscription-manager unregister'
 
@@ -65,6 +67,7 @@ tasks:
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/cache,dst=/var/cache/dnf" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel,dst=/build" \
+            --init \
             {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
@@ -74,10 +77,11 @@ tasks:
       - cmd: mkdir -p "build/fedora/cache"
       - cmd: |
           docker run --rm \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}}/cache,dst=/var/cache/dnf" \
-            --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}},dst=/build" \
-            {{.DOCKER_IMAGE_RHEL}} \
-            bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/fedora/cache,dst=/var/cache/dnf" \
+            --mount="type=bind,src={{.TASKFILE_DIR}}/build/fedora,dst=/build" \
+            --init \
+            {{.DOCKER_IMAGE_FEDORA}} \
+            bash -c 'printf "Adding Repo\n" && curl -sSfL https://fedorapeople.org/groups/virt/virtio-win/virtio-win.repo -o /etc/yum.repos.d/virtio-win.repo && printf "Download ISO\n" && dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
   clean-creds:
     desc: "Cleanup RedHat Manager credentials"
