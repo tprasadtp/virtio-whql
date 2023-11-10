@@ -33,7 +33,7 @@ jobs:
           REDHAT_ACTIVATION_KEY: ${{ secrets.REDHAT_ACTIVATION_KEY }}
 
       - name: Build and Extract ISO
-        run: task extract
+        run: task build-rhel
 
       - name: Unregister Subscriptions
         run: task register-subscription

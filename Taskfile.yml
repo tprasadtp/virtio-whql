@@ -9,7 +9,6 @@ dotenv:
 
 vars:
   DOCKER_IMAGE_RHEL: registry.access.redhat.com/ubi9/ubi:latest
-  DOCKER_IMAGE_CENTOS: quay.io/centos/centos:stream9
 
 tasks:
   default:
@@ -27,7 +26,7 @@ tasks:
           - "build/rhel/cache"
         cmd: mkdir -p {{ .ITEM }}
       - cmd: |
-          docker run -it --rm \
+          docker run --rm \
             --env SMDEV_CONTAINER_OFF=true \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/entitlement,dst=/etc/pki/entitlement" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/rhel/secrets/consumer,dst=/etc/pki/consumer" \
@@ -69,29 +68,15 @@ tasks:
             {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
-  build-centos:
-    desc: "Download and extract virtio-win from Centos Stream"
+  build-fedora:
+    desc: "Download and extract virtio-win from Fedora"
     cmds:
-      - task: extract-iso-oss-internal
-        vars:
-          UPSTREAM: "centos"
-          UPSTREAM_IMAGE: "{{.DOCKER_IMAGE_CENTOS}}"
-
-  extract-iso-oss-internal:
-    desc: "Download and extract virtio-win Upstream(OSS)"
-    internal: true
-    requires:
-      vars:
-        - UPSTREAM
-        - UPSTREAM_IMAGE
-    cmds:
-      - cmd: mkdir -p "build/{{.UPSTREAM}}/cache"
+      - cmd: mkdir -p "build/fedora/cache"
       - cmd: |
           docker run --rm \
-            --env SMDEV_CONTAINER_OFF=true \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}}/cache,dst=/var/cache/dnf" \
             --mount="type=bind,src={{.TASKFILE_DIR}}/build/{{.UPSTREAM}},dst=/build" \
-            {{.UPSTREAM_IMAGE}} \
+            {{.DOCKER_IMAGE_RHEL}} \
             bash -c 'dnf install --best -y --setopt=keepcache=true virtio-win && dnf repoquery --quiet --installed --cacheonly --qf "%{version}-%{release}" virtio-win > /build/VERSION.txt && echo "Copying files to host" && cp /usr/share/virtio-win/virtio-win.iso /build/virtio-win.iso'
 
   clean-creds:
