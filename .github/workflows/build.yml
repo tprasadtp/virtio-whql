@@ -42,8 +42,10 @@ jobs:
           REDHAT_ORG: ${{ secrets.REDHAT_ORG }}
           REDHAT_ACTIVATION_KEY: ${{ secrets.REDHAT_ACTIVATION_KEY }}
 
-      - name: Copy ISO
-        run: cp --force build/rhel/virtio-win.iso build/virtio-win.iso
+      - name: Copy ISO and VERSION.text
+        run: |
+          cp --force build/rhel/virtio-win.iso build/virtio-win.iso
+          cp --force build/rhel/VERSION.txt build/VERSION.txt
 
       - name: Upload virtio-win.iso
         uses: actions/upload-artifact@v3
