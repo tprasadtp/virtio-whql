@@ -70,7 +70,7 @@ cp --force "${ISO_ROOT}/viorng/w10/amd64/viorngum.dll" \
 
 echo "-> Building WinPE ISO"
 mkisofs -J -l -R -V \
-    "VirtIO-WinPE" \
+    "VirtIO-PE-Windows-10" \
     -iso-level 4 \
     -o build/virtio-winpe.iso \
     build/winpe

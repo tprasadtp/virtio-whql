@@ -36,11 +36,14 @@ jobs:
         run: task build-rhel
 
       - name: Unregister Subscriptions
-        run: task register-subscription
+        run: task unregister-subscription
         if: always()
         env:
           REDHAT_ORG: ${{ secrets.REDHAT_ORG }}
           REDHAT_ACTIVATION_KEY: ${{ secrets.REDHAT_ACTIVATION_KEY }}
+
+      - name: Copy ISO
+        run: cp --force build/rhel/virtio-win.iso build/virtio-win.iso
 
       - name: Mount ISO
         run: |
